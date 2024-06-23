@@ -8,10 +8,12 @@ const { createAudioFileName } = require("./modules/randomCreate");
 
 const bot = new Telegraf(process.env.TOKEN);
 
-bot.start((ctx) => {
-    ctx.telegram.sendPhoto(
+bot.start(async (ctx) => {
+    await ctx.telegram.sendPhoto(
         ctx.chat.id,
-        fs.createReadStream("./image/mainPhoto.jpg"),
+        {
+            source: "./image/mainPhoto.jpg"
+        },
         {
             caption: "Hi, this bot is for converting Youtube videos to mp3. To get started, post a link to a Youtube video."
         });
