@@ -8,6 +8,16 @@ const { createAudioFileName } = require("./modules/randomCreate");
 
 const bot = new Telegraf(process.env.TOKEN);
 
+bot.start((ctx) => {
+    ctx.replyWithPhoto(photoUrl, { caption: caption });
+    ctx.telegram.sendPhoto(
+        ctx.chat.id,
+        "./image/mainPhoto.jpg",
+        {
+            caption: "Hi, this bot is for converting Youtube videos to mp3. To get started, post a link to a Youtube video."
+        });
+});
+
 bot.on("message", async (ctx) => {
     console.log("message from:", ctx.from.first_name);
     if (!validator.isURL(ctx.message.text)) {
