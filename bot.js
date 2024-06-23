@@ -9,7 +9,6 @@ const { createAudioFileName } = require("./modules/randomCreate");
 const bot = new Telegraf(process.env.TOKEN);
 
 bot.start((ctx) => {
-    ctx.replyWithPhoto(photoUrl, { caption: caption });
     ctx.telegram.sendPhoto(
         ctx.chat.id,
         "./image/mainPhoto.jpg",
