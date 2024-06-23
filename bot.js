@@ -11,7 +11,7 @@ const bot = new Telegraf(process.env.TOKEN);
 bot.start((ctx) => {
     ctx.telegram.sendPhoto(
         ctx.chat.id,
-        "./image/mainPhoto.jpg",
+        fs.createReadStream("./image/mainPhoto.jpg"),
         {
             caption: "Hi, this bot is for converting Youtube videos to mp3. To get started, post a link to a Youtube video."
         });
