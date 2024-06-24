@@ -1,59 +1,32 @@
+// packages
 const { Telegraf } = require("telegraf");
 require("dotenv").config();
 const validator = require("validator");
 const ytdl = require('ytdl-core');
 const fs = require('fs');
+
+//modules
+const { writeCtx } = require("./modules/notify");
 const { isYouTubeUrl } = require("./modules/url");
-const { createAudioFileName } = require("./modules/randomCreate");
+
+// controllers
+const { start } = require("./controllers/commandController");
+const { youtube } = require("./controllers/mp3Controller");
 
 const bot = new Telegraf(process.env.TOKEN);
 
-bot.start(async (ctx) => {
-    await ctx.telegram.sendPhoto(
-        ctx.chat.id,
-        {
-            source: "./image/mainPhoto.jpg"
-        },
-        {
-            caption: "Hi, this bot is for converting Youtube videos to mp3. To get started, post a link to a Youtube video."
-        });
-});
+bot.start(writeCtx, start);
 
-bot.on("message", async (ctx) => {
-    console.log("message from:", ctx.from.first_name);
+bot.on("message", writeCtx, async (ctx) => {
     if (!validator.isURL(ctx.message.text)) {
         return ctx.reply("This is not link");
     };
 
-    if (!isYouTubeUrl(ctx.message.text)) {
-        return ctx.reply("This is not YouTube link");
+    if (isYouTubeUrl(ctx.message.text)) {
+        youtube(ctx);
+    } else {
+        return ctx.reply("This is not current link");
     };
-
-    const filePath = `./audio/${createAudioFileName(40)}.mp3`;
-    let message = await ctx.reply("Downloading...");
-
-    ytdl(ctx.message.text, {
-        filter: "audioonly",
-        format: "mp3",
-    })
-        .on("error", () => {
-            ctx.reply("Try another YouTube link");
-        })
-        .pipe(fs.createWriteStream(filePath))
-        .on("finish", async () => {
-            try {
-                await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id);
-                message = await ctx.reply("Sedding...");
-                await ctx.telegram.sendAudio(ctx.chat.id, { source: filePath });
-                await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id);
-            } catch (err) {
-                ctx.reply("An error occurred while sending the MP3 file.");
-            } finally {
-                fs.unlink(filePath, (err) => {
-                    if (err) { console.log("err"); }
-                });
-            };
-        });
 });
 
 bot.launch((err) => {
@@ -63,7 +36,6 @@ bot.launch((err) => {
     console.log("Bot starting...");
 });
 
-const app = require("express")();
-app.listen(process.env.PORT, () => {
+require("express")().listen(process.env.PORT, () => {
     console.log("server is listening on port", process.env.PORT);
 });
